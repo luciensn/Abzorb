@@ -2,5 +2,5 @@ Abzorb
 ======
 
 <p align=“center”>
-	<img src=“abzorb.png” />
+	<img src=“https://github.com/luciensn/Abzorb/blob/master/abzorb.png” />
 </p>
