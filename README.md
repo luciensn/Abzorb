@@ -5,4 +5,4 @@ Abzorb
 
 Casual browser game written in JavaScript/HTML5
 
-[Click here to play](https://luciensn.github.io/web/abzorb.html)
+<a href="https://luciensn.github.io/web/abzorb.html" target="_blank">Click here to play</a>
