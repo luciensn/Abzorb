@@ -1,8 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
+	<meta name="robots" content="nofollow">   
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Abzorb : HTML5</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    
+	<title>Abzorb : HTML5</title>
     <style type="text/css">
     	* {
     		padding: 0;
@@ -11,6 +14,7 @@
     	html, body {
     		background: #111111;
     		font-family: 'Futura', sans-serif;
+    		color: #FFFFFF;
     		/*font-size: 10pt;*/
     	}
     	div#wrapper {			
@@ -20,17 +24,24 @@
     		margin: 0 auto;
     		position: relative;
     	}
+    	div#alert {
+    		display: none;
+    		position: absolute;
+    		width: 100%;
+    		top: 16px;
+    		left: 16px;
+    		/*text-align: center;
+    		/*font-size: 16pt;*/
+    	}
+    	div.info {
+    		position: absolute;
+    		width: 100%;
+    		bottom: 0;
+    	}
     	canvas {
     		background: #111111;
     		display: block;
     		box-shadow: 12px 0 15px -4px rgba(0, 0, 0, 0.5), -12px 0 8px -4px rgba(0, 0, 0, 0.5);
-    	}
-    	div.menu {
-    		position: fixed;
-    		top: 0;
-    		left: 0;
-    		color: #FFFFFF;
-    		padding: 12px;
     	}
     	a:link, a:visited {
     		color: #FFFFFF;
@@ -45,20 +56,14 @@
 <body>
 
 <div id="wrapper">
+	<div id="alert">
+		Game over!
+	</div>
+	<div class="info">
+		<p style="float:left; margin: 16px;" id="scoreLabel">Score: 0</p>
+		<a style="float:right; margin: 16px;" id="restartButton" href="javascript:restartGame();">Restart</a>
+	</div>
 	<canvas id="myCanvas"></canvas>
-</div>
-
-<div class="menu">
-	<p>Abzorb</p>
-	<p id="scoreLabel">Score: 0</p>
-	
-	<a id="pauseButton" href="javascript:pauseClicked();">Pause</a>
-	<br />
-	<a id="restartButton" href="javascript:restartGame();">Restart</a>
-	<!--
-	<br />
-	<a id="helpButton" href="javascript:helpClicked();">Help</a>
-	-->
 </div>
 
 <script>
@@ -71,6 +76,7 @@
 	var rPoint = [0, 0]; // rotation point
 
 	var isPaused = false;
+	var gameOver = false;
 	var score = 0;
 
 	// ORBS
@@ -113,6 +119,7 @@
 			this.status = status;
 			this.sameColor = false;
 			this.opacity = 1;
+			this.dead = false;
 		}
 		moveSelf() {
 			if (this.status) {
@@ -316,6 +323,7 @@
 	function gameLogic() {
 
 		var orbsLeft = 0;
+		var deadOrbs = [];
 
 		for (var c=0; c<orbColumnCount; c++) {
 			for (var r=0; r<orbRowCount; r++) {
@@ -358,27 +366,31 @@
 							if (!((coord[0] == c) && (coord[1] == r))) {
 								if (isTouching(coord[0],coord[1])) {
 									numTouching++;
-									// break; // only need to find one more
+									// break; // only need to find one more?
 								}
 							}
 						});
 					}
 
-					// if we still don't have two touching... GAME OVER
+					// if we still don't have two touching...
 					if (numTouching < 2) {
-						// console.log("GAME OVER!");
-						alert("Game over!");
-						// restartGame();
-						pauseClicked();
-						return;
+						deadOrbs.push(orbGridArray[c][r]);
+						// return;
 					}
 				}
 			}
 		}
 
+		// check for game over
+		if (deadOrbs.length > 0) {
+			deadOrbs.forEach(item => {
+				item.dead = true;
+			});
+			endGame();
+		}
+
 		// check to reset the game board... NEW LEVEL
 		if (orbsLeft == 0) {
-			// console.log("NEW LEVEL!");
 			newLevel();
 		}
 	}
@@ -405,18 +417,26 @@
 				orbGridArray[c][r].status = true;
 			}
 		}
-	}	
+	}
+
+	function endGame() {
+		gameOver = true;
+		// document.getElementById("alert").style.display = "inline";
+		document.getElementById("restartButton").innerHTML = "Game over!";
+	}
 
 	/* -------------- BUTTONS -------------- */
 
 	function pauseClicked() {
-		if (!isPaused) {
-			isPaused = true;
-			document.getElementById("pauseButton").innerHTML = "Unpause";
-		} else {
-			isPaused = false;
-			document.getElementById("pauseButton").innerHTML = "Pause";
-			draw();
+		if (!gameOver) {
+				if (!isPaused) {
+				isPaused = true;
+				document.getElementById("pauseButton").innerHTML = "Unpause";
+			} else {
+				isPaused = false;
+				document.getElementById("pauseButton").innerHTML = "Pause";
+				draw();
+			}
 		}
 	}
 
@@ -478,7 +498,7 @@
 
 	// click to launch orb
 	canvas.addEventListener('click', function(e){
-		if (!isPaused) {
+		if ((!gameOver) && (!isPaused)) {
 			launchOrb();
 		}
 	});
@@ -546,7 +566,11 @@
 			ctx.save();
 			ctx.beginPath();
 			ctx.arc(orb.x, orb.y, orbRadius, 0, Math.PI*2);
-			ctx.strokeStyle = orbColors[orb.color];
+			if (orb.dead) {
+				ctx.strokeStyle = "#444444";
+			} else {
+				ctx.strokeStyle = orbColors[orb.color];
+			}
 			ctx.lineWidth = orbLineWidth;
 			////ctx.shadowColor = this.color;
 			////ctx.shadowBlur = 12;
@@ -558,6 +582,7 @@
 	}
 
 	// TODO:
+	// - particle explosions
 	// - mobile screen functionality
 	// - optimize canvas drawing code
 	// - add more sophisticated game logic
