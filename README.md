@@ -5,7 +5,7 @@ Abzorb
 
 Abzorb is a casual browser game written in JavaScript/HTML5.
 
-[CLICK TO PLAY](https://luciensn.github.io/abzorb/abzorb.html)
+[CLICK TO PLAY](https://luciensn.github.io/Abzorb/abzorb.html)
 
 
 
@@ -28,4 +28,4 @@ If less than three orbs are left alone in a cluster, they can no longer be elimi
 
 
 
-[CLICK TO PLAY](https://luciensn.github.io/abzorb/abzorb.html)
+[CLICK TO PLAY](https://luciensn.github.io/Abzorb/abzorb.html)
